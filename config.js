@@ -27,6 +27,7 @@ module.exports = {
         for(var d in database){
             _dbs[d] = getDbConfig({database:database[d]});
         }
+        return _dbs;
     })(k.database),
     server:{
         port: k.dev == 'PRODUCT'?9001:8080
