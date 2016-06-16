@@ -1,0 +1,22 @@
+{
+  "name": "gr-api",
+  "version": "1.0.0",
+  "description": "gr100 api server with yf-api-server",
+  "main": "app.js",
+  "scripts": {
+    "test": "mocha test/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yfsoftcom/gr-api.git"
+  },
+  "keywords": [
+    "123"
+  ],
+  "author": "gr100",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yfsoftcom/gr-api/issues"
+  },
+  "homepage": "https://github.com/yfsoftcom/gr-api#readme"
+}
