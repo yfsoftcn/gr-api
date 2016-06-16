@@ -4,7 +4,8 @@
   "description": "gr100 api server with yf-api-server",
   "main": "app.js",
   "scripts": {
-    "test": "mocha test/*.test.js"
+    "test": "mocha test/*.test.js",
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
@@ -18,5 +19,18 @@
   "bugs": {
     "url": "https://github.com/yfsoftcom/gr-api/issues"
   },
-  "homepage": "https://github.com/yfsoftcom/gr-api#readme"
+  "homepage": "https://github.com/yfsoftcom/gr-api#readme",
+  "dependencies": {
+    "async": "^2.0.0-rc.6",
+    "coordinate-distance": "^1.0.0",
+    "jpush-sdk": "^3.2.1",
+    "leanengine": "^0.4.2",
+    "log4js": "^0.6.37",
+    "moment": "^2.13.0",
+    "q": "^1.4.1",
+    "restify": "^4.1.0",
+    "underscore": "^1.8.3",
+    "yf-api-server": "0.0.8",
+    "yf-fast-dbm": "^1.0.0"
+  }
 }
