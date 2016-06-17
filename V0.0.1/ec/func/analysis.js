@@ -5,11 +5,11 @@ var Q = require('q');
 var async = require('async');
 var E = require('../../../error');
 var _ = require('underscore');
-var api = require('../../api');
 var m = require('moment');
 var L = require('../../../logger.js');
-var ec = require('../');
-module.exports = function(M){
+module.exports = function(M,C){
+    var api = require('../../api')(C);
+    var ec = require('../')(C);
     //数据分析接口
     M.analysis = {
         userAnalysis:function(args){

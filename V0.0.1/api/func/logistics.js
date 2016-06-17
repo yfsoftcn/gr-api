@@ -3,12 +3,11 @@ var _ = require('underscore');
 var async = require('async');
 var E = require('../../../error');
 var logger = require('../../../logger.js');
-var ec = require('../../ec');
-var erp = require('../../erp');
 var AV = require('leanengine');
 var coordtransform=require('coordinate-distance');
-//var rest = require('../../rest');
-module.exports = function(M){
+module.exports = function(M,C){
+    var ec = require('../../ec')(C);
+    var erp = require('../../erp')(C);
     M.logistics = {
         syncGps:function(args){
             var deferred = Q.defer();

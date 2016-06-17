@@ -4,10 +4,10 @@
 var Q = require('q');
 var async = require('async');
 var E = require('../../../error');
-var api = require('../../api');
 var _ = require('underscore');
 var logger = require('../../../logger.js');
-module.exports = function(M){
+module.exports = function(M,C){
+    var api = require('../../api')(C);
     M.tuangou = {
         //添加团购单
         addOrder:function(args){

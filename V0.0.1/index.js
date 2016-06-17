@@ -1,11 +1,12 @@
 'use strict';
-
-module.exports = {
-    activity:require('./activity'),
-    api:require('./api'),
-    common:require('./common'),
-    ec:require('./ec'),
-    erp:require('./erp'),
-    job:require('./job'),
-    order:require('./order')
+module.exports = function(C){
+ return {
+        activity:require('./activity')(C),
+        api:require('./api')(C),
+        common:require('./common')(C),
+        ec:require('./ec')(C),
+        erp:require('./erp')(C),
+        job:require('./job')(C),
+        order:require('./order')(C)
+    };
 };

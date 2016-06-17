@@ -1,9 +1,7 @@
 var Q = require('q');
 var _ = require('underscore');
 var async = require('async');
-var ec = require('../../ec');
 var E = require('../../../error');
-//var rest = require('../../rest');
 module.exports = function(M){
     M.version = {
         /**

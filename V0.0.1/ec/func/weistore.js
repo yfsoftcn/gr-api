@@ -5,11 +5,11 @@ var Q = require('q');
 var async = require('async');
 var E = require('../../../error');
 var _ = require('underscore');
-var api = require('../../api');
 var m = require('moment');
 var L = require('../../../logger.js');
-var com = require('./common.js');
-module.exports = function(M){
+module.exports = function(M,C){
+    var api = require('../../api')(C);
+    var com = require('./common.js')(C);
     M.weistore = {
         //首页精选分类及分类下的商品展示
         getHomepageClassify:function(args){

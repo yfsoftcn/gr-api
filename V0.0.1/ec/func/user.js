@@ -2,11 +2,12 @@ var Q = require('q');
 var async = require('async');
 var E = require('../../../error');
 var _ = require('underscore');
-var api = require('../../api');
 var m = require('moment');
 var L = require('../../../logger.js');
-var ec = require('../');
-module.exports = function(M){
+
+module.exports = function(M,C){
+    var api = require('../../api')(C);
+    var ec = require('../')(C);
     M.user = {
         zan:function(args){
             var zan_table=args.table+"_zan";

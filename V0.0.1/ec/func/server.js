@@ -5,11 +5,11 @@
 var Q = require('q');
 var async = require('async');
 var E = require('../../../error');
-var api = require('../../api');
 var _ = require('underscore');
 var L = require('../../../logger.js');
-var com = require('./common.js');
-module.exports = function(M){
+module.exports = function(M,C){
+    var api = require('../../api')(C);
+    var com = require('./common.js')(C);
     M.server = {
         clearOutTimeOrders:function(args){
             var q = Q.defer() ;

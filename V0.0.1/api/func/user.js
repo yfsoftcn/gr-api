@@ -1,13 +1,13 @@
 var Q = require('q');
 var AV = require('leanengine');
 var _ = require('underscore');
-var rest = require('../../rest');
 var L = require('../../../logger.js');
 var async = require('async');
 var User = AV.Object.extend('_User');
 var E = require('../../../error.js');
 
-module.exports = function(M){
+module.exports = function(M,C){
+    var rest = require('../../rest')(C);
     M.user = {
         signIn:function(args){
 
@@ -19,7 +19,7 @@ module.exports = function(M){
             var type = args.type;
             L.info(openid);
             async.waterfall([
-                //1.¸ù¾Ýopenidµ½apiÊý¾Ý¿âÀï¿´ÓÐÃ»ÓÐ
+                //1.ï¿½ï¿½ï¿½ï¿½openidï¿½ï¿½apiï¿½ï¿½ï¿½Ý¿ï¿½ï¿½ï¿´ï¿½ï¿½Ã»ï¿½ï¿½
                 function(callback){
                     var arg = {table:'gr_login_info',condition:"exists (select 1 from gr_thirdparty b where b.uid  = gr_login_info.id AND b.openid = '" + openid + "' )"};
                     M.count(arg).then(function(c){
@@ -28,17 +28,17 @@ module.exports = function(M){
                         callback(err);
                     });
                 },
-                //2.ÅÐ¶Ï¸ÃÓÃ»§ÊÇ·ñÔÚmysql
+                //2.ï¿½Ð¶Ï¸ï¿½ï¿½Ã»ï¿½ï¿½Ç·ï¿½ï¿½ï¿½mysql
                 function(c,callback){
                     if(c==0){
-                        //Èç¹ûc=0´ú±íapiÊý¾Ý¿âÀïÃ»ÓÐ,ÏÂÀ­
+                        //ï¿½ï¿½ï¿½c=0ï¿½ï¿½ï¿½ï¿½apiï¿½ï¿½ï¿½Ý¿ï¿½ï¿½ï¿½Ã»ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½
                         query = new AV.Query(User);
                         query.equalTo('openid',openid);
                         query.first().then(function(obj){
                             callback(null,c,obj);
                         })
                     }else{
-                        //Èôc>0´ú±íapiÊý¾Ý¿âÀïÓÐ,
+                        //ï¿½ï¿½c>0ï¿½ï¿½ï¿½ï¿½apiï¿½ï¿½ï¿½Ý¿ï¿½ï¿½ï¿½ï¿½ï¿½,
                         rest.invoke('/user/signin',args).then(function(data){
                             callback(null,c,data)
                         }).catch(function(err){
@@ -46,15 +46,15 @@ module.exports = function(M){
                         });
                     }
                 },
-                //3.ÅÐ¶Ï¸ÃÓÃ»§ÊÇ·ñÔÚÔÆ¶Ë
+                //3.ï¿½Ð¶Ï¸ï¿½ï¿½Ã»ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½
                 function(c,data,callback){
                     if(c==0){
                         if(!data || data.length<1){
-                            //Èç¹û²»ÔÚmysql£¬ÓÖ²»ÔÚÔÆ¶Ë£¬Ôò±¨´í£ºÕËºÅÎ´×¢²á£¬ÎÞ·¨µÇÂ¼
-                            //return callback(E.User.ACCOUNT_ERROR);       //code:9999 ÏµÍ³´íÎó
+                            //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½mysqlï¿½ï¿½ï¿½Ö²ï¿½ï¿½ï¿½ï¿½Æ¶Ë£ï¿½ï¿½ò±¨´ï¿½ï¿½Ëºï¿½Î´×¢ï¿½á£¬ï¿½Þ·ï¿½ï¿½ï¿½Â¼
+                            //return callback(E.User.ACCOUNT_ERROR);       //code:9999 ÏµÍ³ï¿½ï¿½ï¿½ï¿½
                             callback(null,c,data,0);
                         }else{
-                            //Èç¹û²»ÔÚmysql£¬µ«ÊÇÔÚÔÆ¶Ë£¬Ôò²Ù×÷ÏÂÀ­²Ù×÷
+                            //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½mysqlï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶Ë£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                             logininfo = {};
                             logininfo.objectId = data.id;
                             logininfo.openid =openid;
@@ -81,15 +81,15 @@ module.exports = function(M){
                         callback(null,c,data,0);
                     }
                 },
-                //4.Èç¹ûÊÇµÚÈý·½£¬Ïògr_thirdparty±íÏÂÀ­Êý¾Ý
+                //4.ï¿½ï¿½ï¿½ï¿½Çµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½gr_thirdpartyï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 function(c,data,insertId,callback){
                     if(c==0){
                         if(!data || data.length<1){
-                            //Èç¹û²»ÔÚmysql£¬ÓÖ²»ÔÚÔÆ¶Ë£¬Ôò±¨´í£ºÕËºÅÎ´×¢²á£¬ÎÞ·¨µÇÂ¼
+                            //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½mysqlï¿½ï¿½ï¿½Ö²ï¿½ï¿½ï¿½ï¿½Æ¶Ë£ï¿½ï¿½ò±¨´ï¿½ï¿½Ëºï¿½Î´×¢ï¿½á£¬ï¿½Þ·ï¿½ï¿½ï¿½Â¼
                             //return callback(E.User.ACCOUNT_ERROR);
                             callback(null);
                         }else{
-                            //Èç¹û²»ÔÚmysql£¬µ«ÊÇÔÚÔÆ¶Ë£¬Ôò²Ù×÷ÏÂÀ­²Ù×÷
+                            //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½mysqlï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶Ë£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                             thirdparty = {};
                             thirdparty.uid = insertId;
                             thirdparty.openid = openid;
@@ -108,7 +108,7 @@ module.exports = function(M){
                         callback(null)
                     }
                 },
-                //5.µ÷µÇÂ¼½Ó¿Ú
+                //5.ï¿½ï¿½ï¿½ï¿½Â¼ï¿½Ó¿ï¿½
                 function(callback){
                     rest.invoke('/user/signin',args).then(function(data){
                         callback(null,data);

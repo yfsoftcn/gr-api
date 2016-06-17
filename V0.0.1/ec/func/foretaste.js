@@ -5,12 +5,13 @@ var Q = require('q');
 var async = require('async');
 var E = require('../../../error');
 var _ = require('underscore');
-var api = require('../../api');
 var m = require('moment');
 var L = require('../../../logger.js');
-var com = require('./common.js');
+
 //试吃 专属接口
-module.exports = function(M) {
+module.exports = function(M,C) {
+    var api = require('../../api')(C);
+    var com = require('./common.js')(C);
     M.foretaste = {
         //获取参与试吃活动的前30名用户头像、等级、总人数
         getForetasterByAid:function(args){

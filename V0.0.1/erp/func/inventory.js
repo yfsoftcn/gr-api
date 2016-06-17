@@ -5,10 +5,10 @@ var Q = require('q');
 var async = require('async');
 var E = require('../../../error');
 var _ = require('underscore');
-var api = require('../../api');
 var m = require('moment');
 var L = require('../../../logger.js');
-module.exports = function(M){
+module.exports = function(M,C){
+    var api = require('../../api')(C);
     M.inventory = {
         getBINinfo:function(args){
             var q=Q.defer();

@@ -2,8 +2,6 @@ var Q = require('q');
 var async = require('async');
 var _ = require('underscore');
 var E = require('../../../error');
-var api = require('../../api');
-var ec = require('../../ec');
 //操作leancloud
 var AV = require('leanengine');
 var User = AV.Object.extend('_User');//用户表
@@ -13,7 +11,9 @@ var PointFlow = AV.Object.extend('PointFlow');//积分流水表
 var GCoinFlow = AV.Object.extend('GCoinFlow');//活动余额流水表
 var CartM = AV.Object.extend('CartProduct');//用户购物车
 
-module.exports = function(M){
+module.exports = function(M,C){
+    var api = require('../../api')(C);
+    var ec = require('../../ec')(C);
     M.foo = {
         count:function(args){
             var deferred = Q.defer();

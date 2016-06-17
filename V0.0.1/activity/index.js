@@ -1,7 +1,8 @@
 'use strict';
-//设置EC db链接
-var C = require('../../config.js');
+//设置Activity db链接
 var FastDBM = require('yf-fast-dbm');
-var M = FastDBM(C.db.activity);
-require('./func/foo')(M);
-module.exports = M;
+module.exports = function(C){
+    var M = FastDBM(C.db.activity);
+    require('./func/foo')(M,C);
+    return M;
+};
