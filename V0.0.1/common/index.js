@@ -1,6 +1,7 @@
 'use strict';
-var FastDBM = require('yf-fast-dbm');
-module.exports = function(C){
-    var M = FastDBM(C.db.erp);
-    return M;
+var _ = require('underscore');
+module.exports = function(M,B){
+    //common模块对应的是erp数据库
+    var _mCommon = _.clone(M.erp);
+    return _mCommon;
 };

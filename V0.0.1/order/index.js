@@ -1,6 +1,6 @@
 'use strict';
-module.exports = function(C) {
-    var rest = require('../rest')(C);
+module.exports = function(M,B) {
+    var rest = M.rest;
     return function(args){
         var act = args.action;
         delete args.action;

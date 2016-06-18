@@ -1,10 +1,11 @@
-var FastDBM = require('yf-fast-dbm');
-module.exports = function(C){
-    var M = FastDBM(C.db.api);
-    require('./func/logistics')(M,C);
-    require('./func/push')(M,C);
-    require('./func/version')(M,C);
-    require('./func/shop')(M,C);
-    require('./func/user')(M,C);
-    return M;
+'use strict';
+module.exports = function(M,B){
+    //api模块对应的是api数据库
+    var _mApi = M.api;
+    require('./func/logistics')(_mApi,B);
+    require('./func/push')(_mApi,B);
+    require('./func/version')(_mApi,B);
+    require('./func/shop')(_mApi,B);
+    require('./func/user')(_mApi,B);
+    return _mApi;
 };

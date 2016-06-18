@@ -1,7 +1,7 @@
 'use strict';
 var yfserver = require('yf-api-server');
 var job = yfserver.job;
-module.exports = function(C) {
+module.exports = function() {
     return {
         run: function (args) {
             var eventId = args.eventId;
