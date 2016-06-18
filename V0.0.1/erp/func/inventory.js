@@ -7,8 +7,8 @@ var E = require('../../../error');
 var _ = require('underscore');
 var m = require('moment');
 var L = require('../../../logger.js');
-module.exports = function(M,C){
-    var api = require('../../api')(C);
+module.exports = function(M,B){
+    var api = B.api;
     M.inventory = {
         getBINinfo:function(args){
             var q=Q.defer();

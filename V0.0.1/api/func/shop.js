@@ -1,12 +1,8 @@
 'use strict';
-var Q = require('q');
-var _ = require('underscore');
-var config = require('../../../config');
-var async = require('async');
-var E = require('../../../error');
-module.exports = function(M,C){
-    var rest = require('../../rest')(C);
+module.exports = function(M,B){
+    var rest = M.rest;
     M.shop = {
+        //门店同步日结数据的接口
         syncData:function(args){
             return rest.invoke('/shop/syncData',args);
         }

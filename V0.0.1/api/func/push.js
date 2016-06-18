@@ -4,9 +4,9 @@ var _ = require('underscore');
 var async = require('async');
 var E = require('../../../error');
 var L = require('../../../logger');
-
+//TODO:将jpush的key配置移到config中
 var client = JPush.buildClient('1d874db47e96f8f7ca95de17', '038b9f4ae697c0651699502c');
-module.exports = function(M){
+module.exports = function(M,B){
     function savePush(content,alias,sendno,msg_id){
         L.info('保存推送信息');
         var deferred = Q.defer();

@@ -3,11 +3,10 @@ var _ = require('underscore');
 var async = require('async');
 var E = require('../../../error');
 var logger = require('../../../logger.js');
-var AV = require('leanengine');
-var coordtransform=require('coordinate-distance');
-module.exports = function(M,C){
-    var ec = require('../../ec')(C);
-    var erp = require('../../erp')(C);
+var coordtransform = require('coordinate-distance');
+module.exports = function(M,B){
+    var ec = B.ec;
+    var erp = B.erp;
     M.logistics = {
         syncGps:function(args){
             var deferred = Q.defer();
@@ -55,9 +54,9 @@ module.exports = function(M,C){
                     var _now = Math.floor(_.now()/1000);
                     M.update({table:'lg_courier',condition:"id = "+argB.id,row:{lastlogintime:_now}})
                         .then(function(data){
-                    }).catch(function(e){
-                        console.log(e);
-                    });
+                        }).catch(function(e){
+                            console.log(e);
+                        });
                     //添加登录记录流水
                     M.create({table:'lg_courier_login_flow',row:{
                         user:argB.name,
@@ -85,7 +84,7 @@ module.exports = function(M,C){
             var deferred = Q.defer();
             var sql =  "select "+
                 "count(case when a.status in (7000,8000) and type not in (11,12) then a.code end) zp,"+
-                //"count(case when a.status = 9000 and date_format(from_unixtime(a.finish_time),'%Y-%m-%d') = '2016-02-28' then a.code  end) ywc,"+
+                    //"count(case when a.status = 9000 and date_format(from_unixtime(a.finish_time),'%Y-%m-%d') = '2016-02-28' then a.code  end) ywc,"+
                 "count(case when a.status in (9000,9999) and a.is_account=0 then a.code  end) ywc,"+
                 "count(case when a.status in (2500,3000,4000,7000,8000) and a.type = 11 then a.code end) th,"+
                 "count(case when a.status in (2500,3000,4000,7000,8000) and a.type = 12 then a.code end) hh,"+
@@ -128,9 +127,6 @@ module.exports = function(M,C){
                 }
             });
             return deferred.promise;
-        },
-        foo1:function(args){
-            return rest.invoke('/rest/test',{});
         },
         //领单接口
         newMission:function(args){
@@ -407,12 +403,12 @@ module.exports = function(M,C){
                     }
                 }]
             },function(err,results){
-                   if(err){
-                       deferred.reject(err);
-                   }else{
-                       deferred.resolve(results);
-                   }
-                });
+                if(err){
+                    deferred.reject(err);
+                }else{
+                    deferred.resolve(results);
+                }
+            });
             return deferred.promise;
         },
 
@@ -771,308 +767,54 @@ module.exports = function(M,C){
             return deffer.promise;
         },
         //站长扫码领取快件接口
-        getExpress2:function(args){
+        getExpress2:function(args) {
             var deffer = Q.defer();
-            var now = Math.floor(_.now()/1000) ;
+            var now = Math.floor(_.now() / 1000);
             async.auto({
-                f0:function(callback,results){
-                    where = " expressno = '"+args.expressno+"' AND type = 2 AND uid = "+args.uid+" ";
-                    M.find({table:"lg_expressmission",condition:where}).then(function(d){
-                        if(d.length > 0){
-                            callback(null,{value:1,data:d});
-                        }else{
-                            callback(null,{value:0});
+                f0: function (callback, results) {
+                    where = " expressno = '" + args.expressno + "' AND type = 2 AND uid = " + args.uid + " ";
+                    M.find({table: "lg_expressmission", condition: where}).then(function (d) {
+                        if (d.length > 0) {
+                            callback(null, {value: 1, data: d});
+                        } else {
+                            callback(null, {value: 0});
                         }
                     });
                 },
-                f1: ["f0",function(callback,results){
-                    if(results.f0.value == 0){
+                f1: ["f0", function (callback, results) {
+                    if (results.f0.value == 0) {
                         var arg = {
-                            table:'lg_expressmission',
-                            row:{
-                                uid:args.uid,
-                                area:args.area,
-                                scantime:now,
-                                expressno:args.expressno,
-                                type:args.type||'2',
-                                createAt:now,
-                                updateAt:now
+                            table: 'lg_expressmission',
+                            row: {
+                                uid: args.uid,
+                                area: args.area,
+                                scantime: now,
+                                expressno: args.expressno,
+                                type: args.type || '2',
+                                createAt: now,
+                                updateAt: now
                             }
                         }
-                        M.create(arg).then(function(data){
-                            callback(null,{msg:'扫码领取快件成功!'});
+                        M.create(arg).then(function (data) {
+                            callback(null, {msg: '扫码领取快件成功!'});
                         });
-                    }else{
-                        M.clear({"table":"lg_expressmission","condition":" type = 1 and expressno ='"+args.expressno+"' "})
-                        callback(null,{msg:'快件回站成功，再次派送需重新扫码!'});
+                    } else {
+                        M.clear({
+                            "table": "lg_expressmission",
+                            "condition": " type = 1 and expressno ='" + args.expressno + "' "
+                        })
+                        callback(null, {msg: '快件回站成功，再次派送需重新扫码!'});
                     }
                 }]
-            },function(err,results){
-                if(err){
+            }, function (err, results) {
+                if (err) {
                     deffer.reject(err);
-                }else{
+                } else {
                     deffer.resolve(results.f1);
                 }
             });
             return deffer.promise;
-        },
-        //营销首页数据展示
-        marketTypeList:function(args){
-            var deffer = Q.defer();
-            var arg = {
-                table:"gr_market",
-                condition:' status=1',
-                sort:' ordnum+',
-                fields:' id,title,gjz'
-            };
-            ec.find(arg).then(function(d){
-                deffer.resolve(d);
-            }).catch(function(err){
-                deffer.reject(null, [])
-            });
-            return deffer.promise;
-        },
-        //根据分类id获取商品列表
-        marketProList1:function(args){
-            var deffer = Q.defer();
-            var marketType = parseInt(args.marketType) || "";
-            var search_name = args.name || "";
-            async.waterfall([
-                function(cb){
-                    var sql = " delflag=0 and productType=2 " ;
-                    if(parseInt(marketType) != 0 && marketType!=""){
-                        sql = sql + " and marketType="+marketType ;
-                    }
-                    if(search_name !=""){
-                        sql = sql+ " and name like '%" + search_name + "%'";
-                    }
-                    var arg = {
-                        table:"gr_product",
-                        condition:sql,
-                        fields:" id,name,intro,marketType,productType,minPrice"
-                    }
-                    ec.find(arg).then(function(data){
-                        cb(null, data);
-                    }).catch(function(err){
-                        cb(null,[]);
-                    });
-                },
-                function(pro,cb){
-                    if(pro.length>1){
-                        async.eachSeries(pro, function(eachP,cb1){
-                            var arg = {
-                                table:"gr_product_spec",
-                                condition:" delflag=0 and pid = "+eachP.id,
-                                fields:" id,name,grprice"
-                            };
-                            ec.find(arg).then(function(data){
-                                eachP['spec'] = data ;
-                                cb1(null, eachP);
-                            }).catch(function(err){
-                                cb1(null, []);
-                            });
-                        },function(){
-                            cb(null, pro)
-                        })
-                    }
-                }
-            ],function(err,result){
-                if(err){
-                    deffer.reject(err);
-                }else{
-                    deffer.resolve(result);
-                }
-            })
-            return deffer.promise;
-        },
-        marketProList:function(args){
-            var deffer = Q.defer();
-            var marketType = parseInt(args.marketType) || "";
-            var search_name = args.name || "";
-            async.waterfall([
-                function(cb){
-                    var sql = "SELECT a.id,a.name,a.intro,a.marketType,a.productType,a.minPrice,b.id psid,b.name specname,b.grprice,b.packageprice "+
-                        " FROM gr_product a,gr_product_spec b"+
-                        " where a.id = b.pid"+
-                        " and a.status = 1 and b.status = 1"+
-                        " and a.productType=2" ;
-
-                    if(parseInt(marketType) != 0 && marketType!="" && parseInt(marketType) != -1){
-                        sql = sql + " and a.marketType="+marketType ;
-                    }
-                    if(search_name !="" && search_name!='0'){
-                        sql = sql+ " and a.name like '%" + search_name + "%'";
-                    }
-                    sql = sql + " order by a.name" ;
-                    ec.adapter.query(sql,function(err,result){
-                        if(err){
-                            cb(E.System.SQL_INJECTION)
-                        }else{
-                            cb(null, result)
-                        }
-                    });
-                },
-                function(pro,cb){
-                    if(pro.length>=1){
-                        var product = [] ;
-                        var flag = 0 ;
-                        async.eachSeries(pro, function(eachP,cb1){
-                            if(product.length>0){
-                                flag = 0 ;
-                                async.eachSeries(product, function(epro,cb2){
-                                    if(epro.id == eachP.id){
-                                        epro.spec.push(
-                                            {
-                                                id:eachP.psid,
-                                                name:eachP.specname,
-                                                grprice:eachP.grprice,
-                                                packageprice:eachP.packageprice
-                                            }
-                                        );
-                                        flag++ ;
-                                    }
-                                    cb2(null);
-                                },function(){
-                                    if(flag === 0){
-                                        var newPro = {};
-                                        newPro['id'] = eachP.id ;
-                                        newPro['name'] = eachP.name ;
-                                        newPro['intro'] = eachP.intro ;
-                                        newPro['marketType'] = eachP.marketType ;
-                                        newPro['productType'] = eachP.productType ;
-                                        newPro['minPrice'] = eachP.minPrice ;
-                                        newPro['spec'] = [] ;
-                                        newPro.spec.push(
-                                            {
-                                                id:eachP.psid,
-                                                minPrice:eachP.minPrice,
-                                                name:eachP.specname,
-                                                grprice:eachP.grprice,
-                                                packageprice:eachP.packageprice
-                                            }
-                                        )
-                                        product.push(newPro);
-                                    }
-                                    cb1(null, product);
-                                });
-                            }else{
-                                var newPro = {};
-                                newPro['id'] = eachP.id ;
-                                newPro['name'] = eachP.name ;
-                                newPro['intro'] = eachP.intro ;
-                                newPro['marketType'] = eachP.marketType ;
-                                newPro['productType'] = eachP.productType ;
-                                newPro['minPrice'] = eachP.minPrice ;
-                                newPro['spec'] = [] ;
-                                newPro.spec.push(
-                                    {
-                                        id:eachP.psid,
-                                        name:eachP.specname,
-                                        grprice:eachP.grprice,
-                                        packageprice:eachP.packageprice
-                                    }
-                                )
-                                product.push(newPro);
-                                cb1(null, product);
-                            }
-                        },function(){
-                            cb(null, product)
-                        })
-                    }else{
-                        cb(null, [])
-                    }
-                }
-            ],function(err,result){
-                if(err){
-                    deffer.reject(err);
-                }else{
-                    deffer.resolve(result);
-                }
-            })
-            return deffer.promise;
-        },
-        //获取购物车数据
-        getCourierCart:function(args){
-            var deffer = Q.defer();
-            var uid = args.uid ;
-            async.waterfall([
-                function(cb){
-                    var arg = {
-                        table:"lg_courier_cart",
-                        condition:" delflag=0 and uid='"+uid+"'",
-                        fields:"id,pid,psid,number"
-                    };
-                    M.find(arg).then(function(data){
-                        cb(null, data);
-                    }).catch(function(err){
-                        cb(null, []);
-                    });
-                },
-                function(pro,cb){
-                    if(pro.length>=1){
-                        async.eachSeries(pro, function(eachP,cb1){
-                            var sql = "SELECT a.id,a.name pname,a.intro,b.name specname,b.id,b.grprice,b.packageprice,b.inventory "+
-                                        "FROM gr_product a,gr_product_spec b "+
-                                        "where a.id = b.pid "+
-                                        " and a.id="+eachP.pid+
-                                        " and b.id="+eachP.psid;
-
-                            ec.adapter.query(sql,function(err,result){
-                                if(err){
-                                    cb1(null, err)
-                                }else{
-                                    eachP["info"] = (result[0])  ;
-                                    cb1(null, pro);
-                                }
-                            })
-                        },function(){
-                            cb(null, pro)
-                        })
-                    }else{
-                        cb(null,[]);
-                    }
-                }
-            ],function(err,result){
-                if(err){
-                    deffer.reject(err);
-                }else{
-                    deffer.resolve(result);
-                }
-            })
-            return deffer.promise;
-        },
-        //批量更新购物车
-        updateCourierCart:function(args){
-            var deffer = Q.defer();
-            var uid = args.uid ;
-            var sql = "UPDATE lg_courier_cart"+
-                " SET number = (CASE id";
-            var row = args.row ;
-            for(var i in args.row){
-                sql = sql + " WHEN "+row[i].id+" THEN "+row[i].number ;
-            }
-            sql = sql + " end) WHERE uid='"+uid+"'" ;
-            M.adapter.query(sql,function(err,result){
-                if(err){
-                    deffer.reject(E.System.SQL_INJECTION);
-                }else{
-                    deffer.resolve(result);
-                }
-            });
-            return deffer.promise;
-        },
-        test:function(args){
-            var q = Q.defer() ;
-            var ss = coordtransform.wgs84_baidu({lat:32.36990243001775,long:119.4647228411208},{lat:32.379203,long:119.480749})
-            q.resolve(ss);
-            /*updateOrderFlow(M,{uid:args.uid,code:args.code,action:args.action}).then(function(data){
-                q.resolve(data);
-            }).catch(function(err){
-                q.reject(err);
-            });*/
-            return q.promise;
         }
-
     };
     return M;
 };
@@ -1088,64 +830,7 @@ var actionFilter = function(action){
     };
     return actionList[action] ;
 };
-//更新AV中order表的状态
-var updateAVOrderStatus = function(orderid,status){
-    var q = Q.defer() ;
-    var Order = AV.Object.extend('Order');
-    async.waterfall([
-        function(cb){
-            //首先判断是否有重单
-            var query = new AV.Query(Order);
-            query.equalTo('orderid',orderid);
-            query.find().then(function(data){
-                if(data.length === 0){
-                    cb({code:-1,msg:'没找到任何数据'})
-                }else if(data.length === 0){
-                    cb(null, {code:1,order:data});
-                }else{
-                    var list = [] ;
-                    async.eachSeries(data,function(e,cb1){
-                        if(e.get('status')>=2500 && _.isEmpty(e.get('areaId')) && e.get('syncStatus')==1){
-                            //需要清理
-                            //e.set({uid:"null",syncStatus:0,orderid: orderid+"-C"});
-                            e.set('uid',"null");
-                            e.set('syncStatus',0);
-                            e.set('orderid',orderid+"-C");
-                            e.save().then(function(d){
-                                cb1(null);
-                            }).catch(function(){
-                                cb1(null);
-                            });
-                        }else{
-                            list.push(e);
-                            cb1(null);
-                        }
-                    },function(){
-                        cb(null, {code:2,order:list});
-                    });
-                }
-            });
-        },
-        function(o,cb){
-            var orders = o.order ;
-            async.eachSeries(orders,function(e,cb1){
-                e.set("status",status);
-                e.save().then(function(){
-                    cb1(null);
-                })
-            },function(){
-                cb(null, {code:0})
-            })
-        }
-    ],function(err,result){
-        if(err){
-            q.reject(err);
-        }else{
-            q.resolve(result);
-        }
-    });
-    return q.promise;
-};
+
 var updateOrderFlow = function(M,key){
     var q = Q.defer() ;
     var uid = key.uid,
