@@ -982,7 +982,7 @@ module.exports = function(M,B){
                     var arg = {
                         table:"gr_exploration",
                         condition:"delflag=0",
-                        fields:"id,article,ptags,product"
+                        fields:"id,ptags,article,product"
                     };
                     M.first(arg).then(function(data){
                         if(data){
@@ -1066,6 +1066,7 @@ module.exports = function(M,B){
                     })
                 }]
             },function(err,result){
+                console.log(err);
                 if(err){
                     q.reject(err);
                 }else{

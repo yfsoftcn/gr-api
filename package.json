@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/yfsoftcom/gr-api#readme",
   "dependencies": {
-    "async": "^2.0.0-rc.6",
+    "async": "1.4.2",
     "coordinate-distance": "^1.0.0",
     "jpush-sdk": "^3.2.1",
     "leanengine": "^0.4.2",
