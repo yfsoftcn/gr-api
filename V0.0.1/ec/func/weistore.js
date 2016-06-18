@@ -3,13 +3,13 @@
  */
 var Q = require('q');
 var async = require('async');
-var E = require('../../../error');
 var _ = require('underscore');
 var m = require('moment');
+var E = require('../../../error');
 var L = require('../../../logger.js');
-module.exports = function(M,C){
-    var api = require('../../api')(C);
-    var com = require('./common.js')(C);
+
+module.exports = function(M,B){
+    var api = B.api;
     M.weistore = {
         //首页精选分类及分类下的商品展示
         getHomepageClassify:function(args){
@@ -491,7 +491,7 @@ module.exports = function(M,C){
                 },
                 //获取购物车数据,计算好价格、优惠
                 f1:function(cb){
-                    com.getCartInfoForAll(M,uid,1).then(function(data){
+                    M.util.getCartInfoForAll(M,uid,1).then(function(data){
                         cb(null, data)
                     }).catch(function(err){
                         cb(err)
@@ -499,7 +499,7 @@ module.exports = function(M,C){
                 },
                 f2:function(cb){
                     //获取用户数据的id/point/balance/gCoin
-                    com.getUser(uid).then(function(data){
+                    M.util.getUser(api,uid).then(function(data){
                         cb(null, {id:data.id,point:data.point, balance:data.balance,gCoin:data.gCoin,level:data.level});
                     }).catch(function(err){
                         cb(err);
@@ -510,10 +510,10 @@ module.exports = function(M,C){
                     var total = result.f1.amount,
                         gCoin = result.f2.gCoin,
                         memberTotal=result.f1.memberAmount;
-                    var memberDiscount =  com.memberDiscountjisuan(memberTotal,result.f2.level);
-                    var disGCoin = com.chuliGCoin(parseFloat(total)-parseFloat(memberDiscount), gCoin) ;//抵扣的活动余额
+                    var memberDiscount =  M.util.memberDiscountjisuan(memberTotal,result.f2.level);
+                    var disGCoin = M.util.chuliGCoin(parseFloat(total)-parseFloat(memberDiscount), gCoin) ;//抵扣的活动余额
                     var vailCoupons = 0 ; //可用优惠券张数
-                    com.getUserCoupons(M,uid,parseFloat(total)-parseFloat(memberDiscount)).then(function(data){
+                    M.util.getUserCoupons(M,uid,parseFloat(total)-parseFloat(memberDiscount)).then(function(data){
                         cb(null, {level:result.f2.level,disGCoin:disGCoin,vailCoupons:data.length,memberDiscount:memberDiscount});
                     }).catch(function(err){
                         cb(err);
@@ -550,7 +550,7 @@ module.exports = function(M,C){
             var amount = args.amount,
                 uid = args.uid ;
             var q = Q.defer() ;
-            com.getUser(uid).then(function(data){
+            M.util.getUser(api,uid).then(function(data){
                 q.resolve(chuliGCoin(amount, data.gCoin));
             }).catch(function(err){
                 q.reject(err);
@@ -566,7 +566,7 @@ module.exports = function(M,C){
             var uid = args.uid,
                 amount =args.amount || -1 ;
             var q = Q.defer() ;
-            com.getUserCoupons(M,uid,amount).then(function(data){
+            M.util.getUserCoupons(M,uid,amount).then(function(data){
                 q.resolve(data);
             }).catch(function(err){
                 q.reject(err);
@@ -738,7 +738,7 @@ module.exports = function(M,C){
                 },
                 f1:function(cb){
                     //根据uid获取用户的余额
-                    com.getUser(uid).then(function(data){
+                    M.util.getUser(api,uid).then(function(data){
                         if(data.id){
                             cb(null, data.balance);
                         }else{
@@ -806,7 +806,7 @@ module.exports = function(M,C){
         getProductInfo:function(args){
             var id = args.id ;
             var q = Q.defer() ;
-            com.getProductInfoById(M,id).then(function(data){
+            M.util.getProductInfoById(M,id).then(function(data){
                 q.resolve(data);
             }).catch(function(err){
                 q.reject(err);
@@ -926,7 +926,7 @@ module.exports = function(M,C){
         },
         clearOutTimeOrders:function(args){
             var q = Q.defer() ;
-            com.clearOutTimeOrders(M).then(function(data){
+            M.util.clearOutTimeOrders(M).then(function(data){
                 q.resolve(data);
             }).catch(function(err){
                 q.reject(err);
@@ -935,7 +935,7 @@ module.exports = function(M,C){
         },
         clearOutTimeCartPro:function(args){
             var q = Q.defer() ;
-            com.clearOutTimeCartPro(M).then(function(data){
+            M.util.clearOutTimeCartPro(M).then(function(data){
                 q.resolve(data);
             }).catch(function(err){
                 q.reject(err);
@@ -1137,7 +1137,7 @@ module.exports = function(M,C){
             async.waterfall([
                 function(cb){
                     //判断当天的阅读次数，小于三次，每次阅读添加1空气
-                    com.personalReads(M,{uid:uid,id:id}).then(function(data){
+                    M.util.personalReads(M,{uid:uid,id:id}).then(function(data){
                         cb(null);
                     }).catch(function(err){
                         cb(null);
@@ -1158,7 +1158,7 @@ module.exports = function(M,C){
                     //根据article的内的collocation展示商品
                     if(!_.isEmpty(article.articlecollocation)){
                         var pids = article.articlecollocation.split(",") ;
-                        com.getProductByIds(M,pids).then(function(data){
+                        M.util.getProductByIds(M,pids).then(function(data){
                             cb(null, {article:article,prolist:data});
                         }).catch(function(err){
                             cb(err);
@@ -1168,7 +1168,7 @@ module.exports = function(M,C){
                     }
                 },
                 function(d,cb){
-                    com.getArticleList(M).then(function(data){
+                    M.util.getArticleList(M).then(function(data){
                         cb(null, {article: d.article,prolist: d.prolist,art_list:data});
                     }).catch(function(){
                         cb(null, {article: d.article,prolist: d.prolist,art_list:[]});
@@ -1190,7 +1190,7 @@ module.exports = function(M,C){
          */
         articleList:function(args){
             var q = Q.defer() ;
-            com.articleList(M,args).then(function(data){
+            M.util.articleList(M,args).then(function(data){
                 q.resolve(data);
             }).catch(function(err){
                 q.reject(err);
@@ -1204,7 +1204,7 @@ module.exports = function(M,C){
                 sort = args.sort ||'null';
 
             var q = Q.defer() ;
-            com.getProductByKey(M,{pname:pname,ptags:ptags,order:order,sort:sort}).then(function(data){
+            M.util.getProductByKey(M,{pname:pname,ptags:ptags,order:order,sort:sort}).then(function(data){
                 q.resolve(data)
             }).catch(function(err){
                 q.reject(err);
@@ -1217,7 +1217,7 @@ module.exports = function(M,C){
                 order = args.order ||'null',
                 sort = args.sort  ||'null';
             var q = Q.defer() ;
-            com.getProductByKey(M,{pname:pname,ptags:ptags,order:order,sort:sort}).then(function(data){
+            M.util.getProductByKey(M,{pname:pname,ptags:ptags,order:order,sort:sort}).then(function(data){
                 q.resolve(data)
             }).catch(function(err){
                 q.reject(err);
@@ -1230,7 +1230,7 @@ module.exports = function(M,C){
                 order = args.order,
                 sort = args.sort ;
             var q = Q.defer() ;
-            com.getProductByKey(M,{pname:pname,ptags:ptags,order:order,sort:sort}).then(function(data){
+            M.util.getProductByKey(M,{pname:pname,ptags:ptags,order:order,sort:sort}).then(function(data){
                 q.resolve(data)
             }).catch(function(err){
                 q.reject(err);
@@ -1241,7 +1241,7 @@ module.exports = function(M,C){
             var q = Q.defer() ;
             var id = args.id,
                 uid = args.uid ;
-            com.getArticleZan(M,{uid:uid,id:id}).then(function(data){
+            M.util.getArticleZan(M,{uid:uid,id:id}).then(function(data){
                 q.resolve(data)
             }).catch(function(err){
                 q.reject(err);
@@ -1252,7 +1252,7 @@ module.exports = function(M,C){
             var q = Q.defer() ;
             var id = args.id,
                 uid = args.uid ;
-            com.articleZan(M,{uid:uid,id:id}).then(function(data){
+            M.util.articleZan(M,{uid:uid,id:id}).then(function(data){
                 q.resolve(data )
             }).catch(function(err){
                 q.reject(err);
@@ -1426,7 +1426,7 @@ module.exports = function(M,C){
                 f3:['f2','f0_1','f1',function(cb,result){
                     if(result.f2.code === 0){
                         //更新了经验，需要验证是否需要升级
-                        com.getUser(uid).then(function(data){
+                        M.util.getUser(api,uid).then(function(data){
                             //cb(null, data.level >= result.f0_1[_.size(result.f0_1)-1].name);
                             if(data.level >= _.max(_.sortBy(result.f0_1),'name').name ){
                                 //达到顶级，无需升级

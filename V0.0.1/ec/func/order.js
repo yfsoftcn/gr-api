@@ -1,13 +1,11 @@
 var Q = require('q');
 var async = require('async');
-var E = require('../../../error');
 var _ = require('underscore');
 var m = require('moment');
 var L = require('../../../logger.js');
-
-module.exports = function(M,C){
-    var api = require('../../api')(C);
-    var ec = require('../')(C);
+var E = require('../../../error');
+module.exports = function(M,B){
+    var api = B.api;
     M.order = {
         /**
          * 根据订单编号获取订单详情
@@ -99,7 +97,7 @@ module.exports = function(M,C){
                 }],
                 f3:function(cb){
                     //根据orderid获取物流流水
-                    getLogisticsFlow(orderid).then(function(data){
+                    M.util.getLogisticsFlow(api,orderid).then(function(data){
                         cb(null, data);
                     }).catch(function(err){
                         cb(err)
@@ -254,7 +252,7 @@ module.exports = function(M,C){
                             dataId : args.orderid
                         }
                     };
-                    ec.create(arg).then(function(data){
+                    M.create(arg).then(function(data){
                         callback(null, {errno:0})
                     }).catch(function(err){
                         callback(null, {errno:0});
@@ -322,7 +320,7 @@ module.exports = function(M,C){
                             dataId : args.orderid
                         }
                     };
-                    ec.create(arg).then(function(data){
+                    M.create(arg).then(function(data){
                         cb(null, {errno:0})
                     }).catch(function(err){
                         cb(null, {errno:0});
@@ -405,7 +403,7 @@ module.exports = function(M,C){
                             updateAt:args.time
                         }
                         data = {table: "gr_courier_comment", row: row}
-                        ec.create(data).then(function (d) {
+                        M.create(data).then(function (d) {
                             callback(null,{data:1});
                         }).catch(function (err) {
                             callback(err);
@@ -420,7 +418,7 @@ module.exports = function(M,C){
                     condition="orderid="+args.orderid;
                     data={table:"gr_final_order",condition:condition,row:row}
                     if(results.f1.data==1){
-                        ec.update(data).then(function(d){
+                        M.update(data).then(function(d){
                             if(d.length>0){
                                 callback(null,{data:0})
                             }else{
@@ -438,7 +436,7 @@ module.exports = function(M,C){
                 f3:["f0",function(callback,results){
                     condition = "orderid="+args.orderid+" and comment=0";
                     data={table:"gr_final_order_goods",condition:condition}
-                    ec.find(data).then(function(d){
+                    M.find(data).then(function(d){
                         if(d.length>0){
                             callback(null,{data:0})
                         }else{
@@ -453,7 +451,7 @@ module.exports = function(M,C){
                     var sql = "SELECT a.courierComment,a.orderid,b.uid,a.givePoint,b.groupNo" +
                         " FROM gr_final_order a,gr_final_order_group b " +
                         " where a.orderid='"+args.orderid+"' and a.courierComment=1 and a.groupNo=b.groupNo";
-                    ec.adapter.query(sql,function(err,d){
+                    M.adapter.query(sql,function(err,d){
                         if(d.length>0){
                             callback(null,{data:1,order:d[0]})
                         }else{
@@ -470,14 +468,14 @@ module.exports = function(M,C){
                         }
                         condition="orderid="+args.orderid;
                         data={table:"gr_final_order",condition:condition,row:row};
-                        ec.update(data).then(function(d){
+                        M.update(data).then(function(d){
                             param={
                                 uid:results.f4.order.uid,
                                 aid:results.f4.order.groupNo,
                                 title:'成功推荐'
 
                             }
-                            ec.weistore.addExp(param);
+                            M.weistore.addExp(param);
                             callback(null,{data:1})
                         }).catch(function(err){
                             callback(null,{});
@@ -522,7 +520,7 @@ module.exports = function(M,C){
                     var sql = "SELECT a.courierComment,a.orderid,b.uid" +
                         " FROM gr_final_order a,gr_final_order_group b " +
                         " where a.orderid='"+args.orderid+"' and a.courierComment=0 and a.groupNo=b.groupNo";
-                    ec.adapter.query(sql,function(err,d){
+                    M.adapter.query(sql,function(err,d){
                         callback(null,d);
                     })
                 },
@@ -530,7 +528,7 @@ module.exports = function(M,C){
                     var sql = "SELECT a.orderid,a.pid,a.specid,b.name pname,b.picurlarray,c.name specname,a.cartnum ,c.grprice,b.bin " +
                         "FROM gr_final_order_goods a ,gr_product b,gr_product_spec c " +
                         "where a.orderid='"+args.orderid+"' and a.comment=0 and a.specid = c.id and c.pid = b.id and a.specid = c.id";
-                    ec.adapter.query(sql,function(err,data){
+                    M.adapter.query(sql,function(err,data){
                         if(err){
                             callback(err)
                         }else{
@@ -664,26 +662,13 @@ module.exports = function(M,C){
     };
     return M ;
 };
-var getLogisticsFlow = function(orderid){
-    var q = Q.defer() ;
-    var sql = "SELECT  b.*,c.name,c.phone " +
-        "FROM lg_mission a ,lg_mission_flow b ,lg_courier c " +
-        "where a.code='"+orderid+"' and b.mission_id=a.code and b.uid=c.id order by b.updateAt desc" ;
-    api.adapter.query(sql,function(err,data) {
-        if (err) {
-            q.reject(err);
-        } else {
-            q.resolve(data);
-        }
-    });
-    return q.promise;
-};
+
 var insertComment = function(param){
     var q = Q.defer();
     async.auto({
         f0:function(callback,results){
             var data = {table:"gr_goods_comment",row:param}
-            ec.create(data).then(function(d){
+            M.create(data).then(function(d){
                 callback(null,d);
             }).catch(function(err){
                 callback(err)
@@ -695,7 +680,7 @@ var insertComment = function(param){
                 comment:1
             }
             var data={table:"gr_final_order_goods",condition:condition,row:row}
-            ec.update(data).then(function(d){
+            M.update(data).then(function(d){
                 callback(null,d);
             }).catch(function(err){
                 callback(null,{});
@@ -752,7 +737,7 @@ var givePoint=function(param){
                     updateAt:Math.floor(_.now()/1000)
                 }
             };
-            ec.create(args).then(function(data){
+            M.create(args).then(function(data){
                 callback(null, {code: 0, msg: "领取积分奖励成功"});
             }).catch(function(err){
                 callback(err);

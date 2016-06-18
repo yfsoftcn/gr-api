@@ -3,15 +3,13 @@
  */
 var Q = require('q');
 var async = require('async');
-var E = require('../../../error');
 var _ = require('underscore');
 var m = require('moment');
+var E = require('../../../error');
 var L = require('../../../logger.js');
-
 //试吃 专属接口
-module.exports = function(M,C) {
-    var api = require('../../api')(C);
-    var com = require('./common.js')(C);
+module.exports = function(M,B) {
+    var api = B.api;
     M.foretaste = {
         //获取参与试吃活动的前30名用户头像、等级、总人数
         getForetasterByAid:function(args){

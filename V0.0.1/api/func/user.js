@@ -5,7 +5,7 @@ var async = require('async');
 var E = require('../../../error.js');
 
 module.exports = function(M,B){
-    var rest = M.rest;
+    var rest = B.rest;
     M.user = {
         signIn:function(args){
             var deferred = Q.defer();

@@ -6,8 +6,7 @@ var async = require('async');
 var E = require('../../../error');
 var _ = require('underscore');
 var L = require('../../../logger.js');
-module.exports = function(M,C){
-    var api = require('../../api')(C);
+module.exports = function(M,B){
     M.act = {
         //必抢首页
         rushwelfareHome:function(args){

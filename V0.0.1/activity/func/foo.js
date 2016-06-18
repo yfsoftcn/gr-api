@@ -2,6 +2,7 @@ var Q = require('q');
 var async = require('async');
 var _ = require('underscore');
 var E = require('../../../error');
+
 //操作leancloud
 var AV = require('leanengine');
 var User = AV.Object.extend('_User');//用户表
@@ -11,9 +12,9 @@ var PointFlow = AV.Object.extend('PointFlow');//积分流水表
 var GCoinFlow = AV.Object.extend('GCoinFlow');//活动余额流水表
 var CartM = AV.Object.extend('CartProduct');//用户购物车
 
-module.exports = function(M,C){
-    var api = require('../../api')(C);
-    var ec = require('../../ec')(C);
+module.exports = function(M,B){
+    var api = B.api;
+    var ec = B.ec;
     M.foo = {
         count:function(args){
             var deferred = Q.defer();
@@ -245,77 +246,77 @@ module.exports = function(M,C){
                         cb(E.Object.CREATE_ERROR);
                     });
                     /*var arg = {
-                        table:'turntable_results',
-                        condition:" uid='"+uid+"'",
-                        sort:" updateAt-"
-                    };*/
+                     table:'turntable_results',
+                     condition:" uid='"+uid+"'",
+                     sort:" updateAt-"
+                     };*/
                     /*M.first(arg).then(function(d){
-                        console.log(d);
-                        if(d.id){
-                            //找到了就更新
-                            var updateAt = d.updateAt ;
-                            if(new Date().toDateString() === new Date(updateAt).toDateString()){
-                                //true：同一天，更新time
-                                var arg1 =  {
-                                    table:'turntable_results',
-                                    condition:" id="+d.id,
-                                    row:{
-                                        reward:reward,
-                                        level:level,
-                                        type:type,
-                                        uid:uid,
-                                        time: d.time+1,
-                                        updateAt:_.now()
-                                    }
-                                };
-                                M.update(arg1).then(function(){
-                                    cb(null, {code:0});
-                                }).catch(function(err){
-                                    cb(E.Object.UPDATE_ERROR);
-                                });
-                            }else{
-                                //非同一天，创建一条新记录
-                                var arg1 =  {
-                                    table:'turntable_results',
-                                    row:{
-                                        reward:reward,
-                                        level:level,
-                                        type:type,
-                                        uid:uid,
-                                        time:1,
-                                        updateAt:_.now(),
-                                        createAt:_.now()
-                                    }
-                                };
-                                M.create(arg1).then(function(){
-                                    cb(null, {code:0});
-                                }).catch(function(err){
-                                    cb(E.Object.CREATE_ERROR);
-                                });
-                            }
-                        }else{
-                            //否则创建一条记录
-                            var arg1 =  {
-                                table:'turntable_results',
-                                row:{
-                                    reward:reward,
-                                    level:level,
-                                    type:type,
-                                    uid:uid,
-                                    time:1,
-                                    updateAt:_.now(),
-                                    createAt:_.now()
-                                }
-                            };
-                            M.create(arg1).then(function(){
-                                cb(null, {code:0});
-                            }).catch(function(err){
-                                cb(E.Object.CREATE_ERROR);
-                            });
-                        }
-                    }).catch(function(err){
-                        cb(err)
-                    });*/
+                     console.log(d);
+                     if(d.id){
+                     //找到了就更新
+                     var updateAt = d.updateAt ;
+                     if(new Date().toDateString() === new Date(updateAt).toDateString()){
+                     //true：同一天，更新time
+                     var arg1 =  {
+                     table:'turntable_results',
+                     condition:" id="+d.id,
+                     row:{
+                     reward:reward,
+                     level:level,
+                     type:type,
+                     uid:uid,
+                     time: d.time+1,
+                     updateAt:_.now()
+                     }
+                     };
+                     M.update(arg1).then(function(){
+                     cb(null, {code:0});
+                     }).catch(function(err){
+                     cb(E.Object.UPDATE_ERROR);
+                     });
+                     }else{
+                     //非同一天，创建一条新记录
+                     var arg1 =  {
+                     table:'turntable_results',
+                     row:{
+                     reward:reward,
+                     level:level,
+                     type:type,
+                     uid:uid,
+                     time:1,
+                     updateAt:_.now(),
+                     createAt:_.now()
+                     }
+                     };
+                     M.create(arg1).then(function(){
+                     cb(null, {code:0});
+                     }).catch(function(err){
+                     cb(E.Object.CREATE_ERROR);
+                     });
+                     }
+                     }else{
+                     //否则创建一条记录
+                     var arg1 =  {
+                     table:'turntable_results',
+                     row:{
+                     reward:reward,
+                     level:level,
+                     type:type,
+                     uid:uid,
+                     time:1,
+                     updateAt:_.now(),
+                     createAt:_.now()
+                     }
+                     };
+                     M.create(arg1).then(function(){
+                     cb(null, {code:0});
+                     }).catch(function(err){
+                     cb(E.Object.CREATE_ERROR);
+                     });
+                     }
+                     }).catch(function(err){
+                     cb(err)
+                     });*/
                 }],
                 final:['f1','f2','f3',function(cb,result){
                     var f = result.f3 ;

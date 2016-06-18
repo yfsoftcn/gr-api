@@ -7,9 +7,8 @@ var E = require('../../../error');
 var _ = require('underscore');
 var m = require('moment');
 var L = require('../../../logger.js');
-module.exports = function(M,C){
-    var api = require('../../api')(C);
-    var ec = require('../')(C);
+module.exports = function(M,B){
+    var api = B.api;
     //数据分析接口
     M.analysis = {
         userAnalysis:function(args){

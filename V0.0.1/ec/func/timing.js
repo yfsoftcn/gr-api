@@ -3,11 +3,10 @@
  */
 var Q = require('q');
 var async = require('async');
-var E = require('../../../error');
 var _ = require('underscore');
+var E = require('../../../error');
 var L = require('../../../logger.js');
-module.exports = function(M,C){
-    var api = require('../../api')(C);
+module.exports = function(M,B){
     M.timing = {
         //获取用户定时券（会员、普通券的数量、具体券）
         getTimingCoupons:function(args){

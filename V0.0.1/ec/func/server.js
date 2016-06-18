@@ -4,16 +4,14 @@
  */
 var Q = require('q');
 var async = require('async');
-var E = require('../../../error');
 var _ = require('underscore');
+var E = require('../../../error');
 var L = require('../../../logger.js');
-module.exports = function(M,C){
-    var api = require('../../api')(C);
-    var com = require('./common.js')(C);
+module.exports = function(M,B){
     M.server = {
         clearOutTimeOrders:function(args){
             var q = Q.defer() ;
-            com.clearOutTimeOrders(M).then(function(data){
+            M.util.clearOutTimeOrders(M).then(function(data){
                 q.resolve(data);
             }).catch(function(err){
                 q.reject(err);
@@ -23,7 +21,7 @@ module.exports = function(M,C){
         //给用户发定时达券
         giveMemberTimingCoupons:function(args){
             var q = Q.defer();
-            com.giveMemberCoupons(M).then(function(data){
+            M.util.giveMemberCoupons(M).then(function(data){
                 q.resolve(data);
             }).catch(function(err){
                 q.reject(err)

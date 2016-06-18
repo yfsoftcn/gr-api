@@ -1,13 +1,11 @@
 var Q = require('q');
 var async = require('async');
-var E = require('../../../error');
-var _ = require('underscore');
 var m = require('moment');
+var _ = require('underscore');
+var E = require('../../../error');
 var L = require('../../../logger.js');
-
-module.exports = function(M,C){
-    var api = require('../../api')(C);
-    var ec = require('../')(C);
+module.exports = function(M,B){
+    var api = B.api;
     M.user = {
         zan:function(args){
             var zan_table=args.table+"_zan";
@@ -40,7 +38,7 @@ module.exports = function(M,C){
                             updateAt:args.time
                         }
                         data = {table: zan_table, row: row}
-                        ec.create(data).then(function (d) {
+                        M.create(data).then(function (d) {
                             callback(null,{data:1});
                         }).catch(function (err) {
                             callback(err);
@@ -72,7 +70,7 @@ module.exports = function(M,C){
                             zan:zan_cnt+1,
                         }
                         data = {table: zan_table, condition:condition,row: row}
-                        ec.update(data).then(function(d){
+                        M.update(data).then(function(d){
                             callback(null,d);
                         }).catch(function(err){
                             callback(err);
@@ -108,7 +106,8 @@ module.exports = function(M,C){
                         aid:results.f4.data['id'],
                         title:'收集到赞'
                     }
-                    ec.weistore.addExp(param);
+                    //警告，这里代码生效 必须要求 weistore.js文件先执行
+                    M.weistore.addExp(param);
                     M.update(data).then(function(d){
                         callback(null,d);
                     }).catch(function(err){
@@ -132,7 +131,7 @@ module.exports = function(M,C){
                     var sql = "SELECT a.courierComment,a.orderid,b.uid" +
                         " FROM gr_final_order a,gr_final_order_group b " +
                         " where a.orderid='"+args.orderid+"' and a.courierComment=0 and a.groupNo=b.groupNo";
-                    ec.adapter.query(sql,function(err,d){
+                    M.adapter.query(sql,function(err,d){
                         callback(null,d);
                     })
                 },
@@ -140,7 +139,7 @@ module.exports = function(M,C){
                     var sql = "SELECT a.orderid,a.pid,a.specid,b.name pname,b.picurlarray,c.name specname,a.cartnum ,c.grprice,b.bin " +
                         "FROM gr_final_order_goods a ,gr_product b,gr_product_spec c " +
                         "where a.orderid='"+args.orderid+"' and a.comment=0 and a.specid = c.id and c.pid = b.id and a.specid = c.id";
-                    ec.adapter.query(sql,function(err,data){
+                    M.adapter.query(sql,function(err,data){
                         if(err){
                             callback(err)
                         }else{

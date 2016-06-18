@@ -1,15 +1,16 @@
 'use strict';
-var FastDBM = require('yf-fast-dbm');
-module.exports = function(C){
-    var M = FastDBM(C.db.ec);
-    require('./func/weistore')(M,C);
-    require('./func/tuangou')(M,C);
-    require('./func/act')(M,C);
-    require('./func/foretaste')(M,C);
-    require('./func/order')(M,C);
-    require('./func/user')(M,C);
-    require('./func/analysis')(M,C);
-    require('./func/timing')(M,C);
-    require('./func/server')(M,C);
-    return M;
+var _ = require('underscore');
+module.exports = function(M,B){
+    var _mEc = _.clone(M.ec);
+    _mEc.util = require('./func/common.js');
+    require('./func/weistore')(_mEc,B);
+    require('./func/tuangou')(_mEc,B);
+    require('./func/act')(_mEc,B);
+    require('./func/foretaste')(_mEc,B);
+    require('./func/order')(_mEc,B);
+    require('./func/user')(_mEc,B);
+    require('./func/analysis')(_mEc,B);
+    require('./func/timing')(_mEc,B);
+    require('./func/server')(_mEc,B);
+    return _mEc;
 };
